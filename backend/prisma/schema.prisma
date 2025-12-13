@@ -1,0 +1,77 @@
+// Database schema for Sweet Shop Management System
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  purchases Purchase[]
+
+  @@map("users")
+}
+
+model Shop {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  imageUrl    String?
+  rating      Float    @default(4.0)
+  address     String
+  phone       String?
+  isOpen      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  sweets Sweet[]
+
+  @@map("shops")
+}
+
+model Sweet {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  quantity    Int      @default(0)
+  category    String
+  imageUrl    String?
+  shopId      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  shop      Shop       @relation(fields: [shopId], references: [id])
+  purchases Purchase[]
+
+  @@map("sweets")
+}
+
+model Purchase {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  sweetId    Int
+  quantity   Int
+  totalPrice Float
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id])
+  sweet Sweet @relation(fields: [sweetId], references: [id])
+
+  @@map("purchases")
+}
+
